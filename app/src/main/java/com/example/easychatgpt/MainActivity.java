@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
             = MediaType.get("application/json; charset=utf-8");
     OkHttpClient client = new OkHttpClient();
 
+    private static final String DEFAULT_MODEL = "text-davinci-003";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,9 +87,18 @@ public class MainActivity extends AppCompatActivity {
         //okhttp
         messageList.add(new Message("Typing... ",Message.SENT_BY_BOT));
 
+        if (BuildConfig.OPENAI_API_KEY == null || BuildConfig.OPENAI_API_KEY.trim().isEmpty()) {
+            addResponse("Missing API key. Set BuildConfig.OPENAI_API_KEY in app/build.gradle.");
+            return;
+        }
+        if (BuildConfig.OPENAI_BASE_URL == null || BuildConfig.OPENAI_BASE_URL.trim().isEmpty()) {
+            addResponse("Missing base URL. Set BuildConfig.OPENAI_BASE_URL in app/build.gradle.");
+            return;
+        }
+
         JSONObject jsonBody = new JSONObject();
         try {
-            jsonBody.put("model","text-davinci-003");
+            jsonBody.put("model", DEFAULT_MODEL);
             jsonBody.put("prompt",question);
             jsonBody.put("max_tokens",4000);
             jsonBody.put("temperature",0);
@@ -96,8 +107,8 @@ public class MainActivity extends AppCompatActivity {
         }
         RequestBody body = RequestBody.create(jsonBody.toString(),JSON);
         Request request = new Request.Builder()
-                .url("https://api.deepseek.com/v1")
-                .header("Authorization","sk-d3cbc6ddc6d94e7abf35ad1bf5db74e6")
+                .url(buildCompletionsUrl(BuildConfig.OPENAI_BASE_URL))
+                .header("Authorization", authorizationHeaderValue(BuildConfig.OPENAI_API_KEY))
                 .post(body)
                 .build();
 
@@ -122,7 +133,8 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }else{
-                    addResponse("Failed to load response due to "+response.body().toString());
+                    String errorBody = response.body() != null ? response.body().string() : "";
+                    addResponse("Failed to load response due to HTTP " + response.code() + " " + errorBody);
                 }
             }
         });
@@ -133,9 +145,32 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private static String buildCompletionsUrl(String baseUrl) {
+        String trimmed = baseUrl == null ? "" : baseUrl.trim();
+        if (trimmed.isEmpty()) {
+            return "";
+        }
+        while (trimmed.endsWith("/")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        if (trimmed.endsWith("/completions")) {
+            return trimmed;
+        }
+        if (trimmed.endsWith("/v1")) {
+            return trimmed + "/completions";
+        }
+        return trimmed + "/v1/completions";
+    }
+
+    private static String authorizationHeaderValue(String apiKey) {
+        String trimmed = apiKey == null ? "" : apiKey.trim();
+        if (trimmed.regionMatches(true, 0, "Bearer ", 0, "Bearer ".length())) {
+            return trimmed;
+        }
+        return "Bearer " + trimmed;
+    }
 
 }
-
 
 
 

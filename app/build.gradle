@@ -13,6 +13,11 @@ android {
         versionCode 1
         versionName "1.0"
 
+        // OpenAI-compatible provider configuration (baked into the app; not user-editable).
+        // Set these values to your own provider's base URL and API key.
+        buildConfigField "String", "OPENAI_BASE_URL", "\"https://api.deepseek.com\""
+        buildConfigField "String", "OPENAI_API_KEY", "\"\""
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -25,6 +30,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        buildConfig true
     }
 }
 
