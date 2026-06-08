@@ -96,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
         }
         RequestBody body = RequestBody.create(jsonBody.toString(),JSON);
         Request request = new Request.Builder()
-                .url("https://api.openai.com/v1/completions")
-                .header("Authorization","Bearer YOUR_API_KEY")
+                .url("https://api.deepseek.com/v1")
+                .header("Authorization","sk-d3cbc6ddc6d94e7abf35ad1bf5db74e6")
                 .post(body)
                 .build();
 

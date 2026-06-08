@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Easy ChatGPT</string>
+    <string name="welcome_message">Welcome to Easy ChatGPT</string>
 </resources>
