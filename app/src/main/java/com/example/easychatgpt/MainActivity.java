@@ -28,6 +28,10 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
+    static final String PREFS_NAME = LoginActivity.PREFS_NAME;
+    static final String PREF_BASE_URL = LoginActivity.PREF_BASE_URL;
+    static final String PREF_API_KEY = LoginActivity.PREF_API_KEY;
+
     RecyclerView recyclerView;
     TextView welcomeTextView;
     EditText messageEditText;
@@ -85,6 +89,21 @@ public class MainActivity extends AppCompatActivity {
         //okhttp
         messageList.add(new Message("Typing... ",Message.SENT_BY_BOT));
 
+        String baseUrl = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .getString(PREF_BASE_URL, "https://api.openai.com/");
+        if (baseUrl == null) {
+            baseUrl = "https://api.openai.com/";
+        }
+        if (!baseUrl.endsWith("/")) {
+            baseUrl = baseUrl + "/";
+        }
+
+        String apiKey = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString(PREF_API_KEY, "");
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            addResponse("Missing API key. Please set it on the login screen.");
+            return;
+        }
+
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("model","text-davinci-003");
@@ -96,8 +115,8 @@ public class MainActivity extends AppCompatActivity {
         }
         RequestBody body = RequestBody.create(jsonBody.toString(),JSON);
         Request request = new Request.Builder()
-                .url("https://api.openai.com/v1/completions")
-                .header("Authorization","Bearer YOUR_API_KEY")
+                .url(baseUrl + "v1/completions")
+                .header("Authorization","Bearer " + apiKey.trim())
                 .post(body)
                 .build();
 
@@ -135,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 }
-
 
 
 

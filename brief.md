@@ -49,6 +49,7 @@
    - 清空输入框、隐藏欢迎文案
 2. 发起请求（`callAPI(question)`）：
    - 先插入一条 `Typing...` 的机器人占位消息
+   - 从本地配置读取 `base url` 与 `api key`（在 `LoginActivity` 保存），请求地址拼接为：`{baseUrl}/v1/completions`
    - 用 `org.json` 组装请求体（`model/text-davinci-003`、`prompt`、`max_tokens`、`temperature`）
    - 使用 `OkHttpClient#newCall(...).enqueue(...)` 异步请求 `https://api.openai.com/v1/completions`
 3. 处理响应：
